@@ -17,6 +17,7 @@ import com.hetpatel.nexusops.organization.mapper.OrganizationMapper;
 
 import com.hetpatel.nexusops.organization.repository.OrganizationRepository;
 
+import com.hetpatel.nexusops.organization.service.OrganizationProvisioningService;
 import com.hetpatel.nexusops.organization.service.OrganizationService;
 
 import lombok.RequiredArgsConstructor;
@@ -39,8 +40,10 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     private final OrganizationRepository organizationRepository;
     private final OrganizationMapper organizationMapper;
+    private final OrganizationProvisioningService organizationProvisioningService;
 
     @Override
+    @Transactional
     public OrganizationResponse createOrganization(CreateOrganizationRequest request) {
 
         if (organizationRepository.existsByCode(request.getCode())) {
@@ -57,7 +60,11 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         organization.setStatus(OrganizationStatus.ACTIVE);
 
-        Organization savedOrganization = organizationRepository.save(organization);
+        Organization savedOrganization =
+                organizationRepository.save(organization);
+
+        organizationProvisioningService
+                .provisionDefaultRoles(savedOrganization);
 
         log.info(
                 "Organization created successfully: id={}, code={}",

@@ -55,6 +55,9 @@ class OrganizationServiceImplTest {
     @Mock
     private OrganizationMapper organizationMapper;
 
+    @Mock
+    private OrganizationProvisioningService organizationProvisioningService;
+
     @InjectMocks
     private OrganizationServiceImpl organizationService;
 
@@ -122,6 +125,9 @@ class OrganizationServiceImplTest {
         verify(organizationRepository)
                 .save(organization);
 
+        verify(organizationProvisioningService)
+                .provisionDefaultRoles(organization);
+
         verify(organizationMapper)
                 .toResponse(organization);
     }
@@ -152,6 +158,9 @@ class OrganizationServiceImplTest {
 
         verify(organizationRepository, never())
                 .save(any());
+
+        verify(organizationProvisioningService, never())
+                .provisionDefaultRoles(any());
     }
 
     @Test
@@ -430,7 +439,6 @@ class OrganizationServiceImplTest {
                 .toResponse(organization);
     }
 
-
     @Test
     void restoreOrganization_shouldThrowNotFound_whenDeletedOrganizationDoesNotExist() {
 
@@ -438,7 +446,8 @@ class OrganizationServiceImplTest {
                 .thenReturn(0);
 
         assertThatThrownBy(() ->
-                organizationService.restoreOrganization(999L))
+                organizationService.restoreOrganization(999L)
+        )
                 .isInstanceOf(ResourceNotFoundException.class);
 
         verify(organizationRepository)
@@ -449,5 +458,46 @@ class OrganizationServiceImplTest {
 
         verify(organizationMapper, never())
                 .toResponse(any());
+    }
+
+    @Test
+    void createOrganization_shouldPropagateException_whenRoleProvisioningFails() {
+
+        CreateOrganizationRequest request =
+                new CreateOrganizationRequest();
+
+        request.setName("Test Organization");
+        request.setCode("TEST001");
+        request.setEmail("test@example.com");
+
+        when(organizationRepository.existsByCode("TEST001"))
+                .thenReturn(false);
+
+        when(organizationMapper.toEntity(request))
+                .thenReturn(organization);
+
+        when(organizationRepository.save(organization))
+                .thenReturn(organization);
+
+        org.mockito.Mockito.doThrow(
+                        new RuntimeException("Role provisioning failed")
+                )
+                .when(organizationProvisioningService)
+                .provisionDefaultRoles(organization);
+
+        assertThatThrownBy(() ->
+                organizationService.createOrganization(request)
+        )
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Role provisioning failed");
+
+        verify(organizationRepository)
+                .save(organization);
+
+        verify(organizationProvisioningService)
+                .provisionDefaultRoles(organization);
+
+        verify(organizationMapper, never())
+                .toResponse(organization);
     }
 }

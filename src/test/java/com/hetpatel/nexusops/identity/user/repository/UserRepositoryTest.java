@@ -31,13 +31,11 @@ class UserRepositoryTest {
     @BeforeEach
     void setUp() {
 
-        jdbcTemplate.update(
-                "DELETE FROM users"
-        );
-
-        jdbcTemplate.update(
-                "DELETE FROM organizations"
-        );
+        jdbcTemplate.update("DELETE FROM user_roles");
+        jdbcTemplate.update("DELETE FROM role_permissions");
+        jdbcTemplate.update("DELETE FROM users");
+        jdbcTemplate.update("DELETE FROM roles");
+        jdbcTemplate.update("DELETE FROM organizations");
 
         jdbcTemplate.update(
                 """

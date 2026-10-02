@@ -1,8 +1,7 @@
-package com.hetpatel.nexusops.identity.userrole.entity;
+package com.hetpatel.nexusops.identity.rolepermission.entity;
 
+import com.hetpatel.nexusops.identity.permission.entity.Permission;
 import com.hetpatel.nexusops.identity.role.entity.Role;
-import com.hetpatel.nexusops.identity.user.entity.User;
-
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -14,11 +13,11 @@ import java.time.Instant;
 
 @Entity
 @Table(
-        name = "user_roles",
+        name = "role_permissions",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_user_roles_user_role",
-                        columnNames = {"user_id", "role_id"}
+                        name = "uk_role_permissions_role_permission",
+                        columnNames = {"role_id", "permission_id"}
                 )
             }
         )
@@ -27,7 +26,8 @@ import java.time.Instant;
 @Getter
 @Setter
 @ToString
-public class UserRole {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class RolePermission {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,12 +35,12 @@ public class UserRole {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @ManyToOne
+    @JoinColumn(name = "permission_id", nullable = false)
+    private Permission permission;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
