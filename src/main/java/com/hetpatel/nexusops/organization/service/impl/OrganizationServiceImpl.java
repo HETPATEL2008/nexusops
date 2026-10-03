@@ -124,6 +124,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
+    @Transactional
     public OrganizationResponse updateOrganization(
             Long id,
             UpdateOrganizationRequest request) {
@@ -170,6 +171,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
+    @Transactional
     public void deleteOrganization(Long id) {
         Organization organization =
                 organizationRepository

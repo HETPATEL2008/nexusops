@@ -50,6 +50,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordHasher passwordHasher;
 
     @Override
+    @Transactional
     public UserResponse createUser(CreateUserRequest request) {
 
         Organization organization = organizationRepository
@@ -148,6 +149,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserResponse updateUser(
             Long id,
             UpdateUserRequest request) {

@@ -46,6 +46,7 @@ public class RoleServiceImpl implements RoleService {
     private final OrganizationRepository organizationRepository;
 
     @Override
+    @Transactional
     public RoleResponse createRole(CreateRoleRequest request) {
 
         Organization organization = organizationRepository
@@ -142,6 +143,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @Transactional
     public RoleResponse updateRole(
             Long id,
             UpdateRoleRequest request) {
