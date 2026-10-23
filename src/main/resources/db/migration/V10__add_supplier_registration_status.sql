@@ -1,0 +1,2 @@
+ALTER TABLE suppliers
+    ADD COLUMN registration_status VARCHAR(30) NOT NULL DEFAULT 'PENDING_REVIEW';
