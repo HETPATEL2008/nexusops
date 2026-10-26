@@ -18,7 +18,7 @@ public interface SupplierRepository extends JpaRepository<Supplier, Long>,
 
     boolean existsBySupplierCode(String supplierCode);
 
-    @Modifying
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = """
             UPDATE suppliers
             SET deleted = false,

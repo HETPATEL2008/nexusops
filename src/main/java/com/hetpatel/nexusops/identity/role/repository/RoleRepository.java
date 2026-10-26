@@ -25,7 +25,7 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
 
     Optional<Role> findByIdAndOrganizationId(Long id, Long organizationId);
 
-    @Modifying
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = """
             UPDATE roles
             SET deleted = false,

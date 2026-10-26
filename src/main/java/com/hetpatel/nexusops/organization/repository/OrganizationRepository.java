@@ -16,7 +16,7 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 
     boolean existsByCode(String code);
 
-    @Modifying
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = """
             UPDATE organizations
             SET deleted = false,
