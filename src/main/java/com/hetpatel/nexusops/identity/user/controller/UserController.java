@@ -13,6 +13,8 @@ import com.hetpatel.nexusops.identity.user.service.UserService;
 
 import jakarta.validation.Valid;
 
+import jakarta.validation.constraints.Positive;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;
@@ -20,10 +22,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.validation.annotation.Validated;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@Validated
 @RequiredArgsConstructor
 public class UserController {
 
@@ -49,7 +54,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable @Positive Long id) {
 
         UserResponse response = userService.getUserById(id);
 
@@ -86,7 +91,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
-        @PathVariable Long id,
+        @PathVariable @Positive Long id,
         @Valid @RequestBody UpdateUserRequest request) {
 
         UserResponse response = userService.updateUser(id, request);
@@ -105,7 +110,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable @Positive Long id) {
 
         userService.deleteUser(id);
 
@@ -122,8 +127,8 @@ public class UserController {
                 .body(apiResponse);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserResponse>> restoreUser(@PathVariable Long id) {
+    @PatchMapping("/{id}/restore")
+    public ResponseEntity<ApiResponse<UserResponse>> restoreUser(@PathVariable @Positive Long id) {
 
         UserResponse response = userService.restoreUser(id);
 

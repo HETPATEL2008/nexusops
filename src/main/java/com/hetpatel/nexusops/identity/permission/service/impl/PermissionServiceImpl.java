@@ -2,6 +2,7 @@ package com.hetpatel.nexusops.identity.permission.service.impl;
 
 import com.hetpatel.nexusops.common.api.PageResponse;
 
+import com.hetpatel.nexusops.common.exception.BusinessException;
 import com.hetpatel.nexusops.common.exception.ResourceNotFoundException;
 
 import com.hetpatel.nexusops.identity.permission.dto.response.PermissionResponse;
@@ -35,6 +36,10 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public PermissionResponse getPermissionById(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
 
         Permission permission = permissionRepository
                 .findById(id)

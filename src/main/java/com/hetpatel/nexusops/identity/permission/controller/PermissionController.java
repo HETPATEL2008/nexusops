@@ -8,6 +8,8 @@ import com.hetpatel.nexusops.identity.permission.dto.response.PermissionResponse
 
 import com.hetpatel.nexusops.identity.permission.service.PermissionService;
 
+import jakarta.validation.constraints.Positive;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;
@@ -15,17 +17,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.validation.annotation.Validated;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/permissions")
+@Validated
 @RequiredArgsConstructor
 public class PermissionController {
 
     private final PermissionService permissionService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<PermissionResponse>> getPermissionById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<PermissionResponse>> getPermissionById(@PathVariable @Positive Long id) {
 
         PermissionResponse response = permissionService.getPermissionById(id);
 

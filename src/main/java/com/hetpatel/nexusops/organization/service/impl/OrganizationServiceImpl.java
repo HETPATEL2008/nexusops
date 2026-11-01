@@ -2,6 +2,7 @@ package com.hetpatel.nexusops.organization.service.impl;
 
 import com.hetpatel.nexusops.common.api.PageResponse;
 
+import com.hetpatel.nexusops.common.exception.BusinessException;
 import com.hetpatel.nexusops.common.exception.ConflictException;
 import com.hetpatel.nexusops.common.exception.ResourceNotFoundException;
 
@@ -47,6 +48,10 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Transactional
     public OrganizationResponse createOrganization(CreateOrganizationRequest request) {
 
+        if (request == null) {
+            throw new BusinessException("Request must not be null");
+    }
+
         if (organizationRepository.existsByCode(request.getCode())) {
             log.warn(
                     "Organization creation failed: code already exists, code={}",
@@ -78,6 +83,11 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public OrganizationResponse getOrganizationById(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
+
         Organization organization =
                 organizationRepository
                         .findById(id)
@@ -130,6 +140,14 @@ public class OrganizationServiceImpl implements OrganizationService {
             Long id,
             UpdateOrganizationRequest request) {
 
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
+
+        if (request == null) {
+            throw new BusinessException("Request must not be null.");
+        }
+
         Organization organization =
                 organizationRepository
                         .findById(id)
@@ -174,6 +192,11 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     @Transactional
     public void deleteOrganization(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
+
         Organization organization =
                 organizationRepository
                         .findById(id)
@@ -200,6 +223,10 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     @Transactional
     public OrganizationResponse restoreOrganization(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
 
         int restoredRows = organizationRepository.restoreById(id);
 

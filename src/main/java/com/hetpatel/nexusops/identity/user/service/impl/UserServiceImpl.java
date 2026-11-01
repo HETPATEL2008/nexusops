@@ -2,6 +2,7 @@ package com.hetpatel.nexusops.identity.user.service.impl;
 
 import com.hetpatel.nexusops.common.api.PageResponse;
 
+import com.hetpatel.nexusops.common.exception.BusinessException;
 import com.hetpatel.nexusops.common.exception.ConflictException;
 import com.hetpatel.nexusops.common.exception.ResourceNotFoundException;
 
@@ -54,6 +55,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse createUser(CreateUserRequest request) {
 
+        if (request == null) {
+            throw new BusinessException("Request must not be null");
+        }
+
         Organization organization = organizationRepository
                 .findById(request.getOrganizationId())
                 .orElseThrow(() -> {
@@ -104,6 +109,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getUserById(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
+
         User user = userRepository
                 .findById(id)
                 .orElseThrow(() -> {
@@ -154,6 +164,14 @@ public class UserServiceImpl implements UserService {
     public UserResponse updateUser(
             Long id,
             UpdateUserRequest request) {
+
+        if (request == null) {
+            throw new BusinessException("Request must not be null");
+        }
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
 
         User user = userRepository
                 .findById(id)
@@ -211,7 +229,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
+
         User user = userRepository
                 .findById(id)
                 .orElseThrow(() -> {
@@ -225,7 +249,7 @@ public class UserServiceImpl implements UserService {
                     );
                 });
 
-        userRepository.deleteById(id);
+        userRepository.delete(user);
 
         log.info(
                 "User soft deleted successfully: id={}, username={}",
@@ -237,6 +261,10 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserResponse restoreUser(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
 
         int restoredRows = userRepository.restoreById(id);
 

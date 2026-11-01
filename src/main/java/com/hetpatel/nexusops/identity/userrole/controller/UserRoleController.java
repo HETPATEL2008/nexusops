@@ -12,10 +12,14 @@ import com.hetpatel.nexusops.identity.userrole.service.UserRoleService;
 
 import jakarta.validation.Valid;
 
+import jakarta.validation.constraints.Positive;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.validation.annotation.Validated;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +27,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@Validated
 @RequiredArgsConstructor
 public class UserRoleController {
 
@@ -30,7 +35,7 @@ public class UserRoleController {
 
     @PostMapping("/{userId}/roles")
     public ResponseEntity<ApiResponse<UserRoleResponse>> assignRole(
-            @PathVariable Long userId,
+            @PathVariable @Positive Long userId,
             @RequestBody @Valid AssignRoleRequest request) {
 
         UserRoleResponse response = userRoleService.assignRole(userId, request);
@@ -50,7 +55,7 @@ public class UserRoleController {
 
     @GetMapping("/{userId}/roles")
     public ResponseEntity<ApiResponse<List<UserRoleResponse>>> getUserRoles(
-            @PathVariable Long userId) {
+            @PathVariable @Positive Long userId) {
 
         List<UserRoleResponse> responses = userRoleService.getUserRoles(userId);
 
@@ -69,8 +74,8 @@ public class UserRoleController {
 
     @DeleteMapping("/{userId}/roles/{roleId}")
     public ResponseEntity<ApiResponse<Void>> removeRole(
-            @PathVariable Long userId,
-            @PathVariable Long roleId) {
+            @PathVariable @Positive Long userId,
+            @PathVariable @Positive Long roleId) {
 
         userRoleService.removeRole(userId, roleId);
 

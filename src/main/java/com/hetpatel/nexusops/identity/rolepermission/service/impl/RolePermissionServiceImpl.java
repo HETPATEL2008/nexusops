@@ -1,5 +1,6 @@
 package com.hetpatel.nexusops.identity.rolepermission.service.impl;
 
+import com.hetpatel.nexusops.common.exception.BusinessException;
 import com.hetpatel.nexusops.common.exception.ConflictException;
 import com.hetpatel.nexusops.common.exception.ResourceNotFoundException;
 
@@ -51,6 +52,10 @@ public class RolePermissionServiceImpl implements RolePermissionService {
             Long roleId,
             AssignPermissionRequest assignPermissionRequest) {
 
+        if (roleId == null || roleId <= 0) {
+            throw new BusinessException("Role Id must be a positive value.");
+        }
+
         Role role = roleRepository
                 .findById(roleId)
                 .orElseThrow(() -> {
@@ -100,6 +105,11 @@ public class RolePermissionServiceImpl implements RolePermissionService {
 
     @Override
     public List<RolePermissionResponse> getRolePermissions(Long roleId) {
+
+        if (roleId == null || roleId <= 0) {
+            throw new BusinessException("Role Id must be a positive value.");
+        }
+
         roleRepository
                 .findById(roleId)
                 .orElseThrow(() -> {
@@ -125,6 +135,15 @@ public class RolePermissionServiceImpl implements RolePermissionService {
     @Override
     @Transactional
     public void removePermission(Long roleId, Long permissionId) {
+
+        if (roleId == null || roleId <= 0) {
+            throw new BusinessException("Role Id must be a positive value.");
+        }
+
+        if (permissionId == null || permissionId <= 0) {
+            throw new BusinessException("Permission Id must be a positive value.");
+        }
+
         roleRepository
                 .findById(roleId)
                 .orElseThrow(() -> {

@@ -49,6 +49,11 @@ public class UserRoleServiceImpl implements UserRoleService {
     @Override
     @Transactional
     public UserRoleResponse assignRole(Long userId, AssignRoleRequest assignRoleRequest) {
+
+        if (userId == null || userId <= 0) {
+            throw new BusinessException("User Id must be a positive value.");
+        }
+
         User user = userRepository
                 .findById(userId)
                 .orElseThrow(() -> {
@@ -110,6 +115,11 @@ public class UserRoleServiceImpl implements UserRoleService {
 
     @Override
     public List<UserRoleResponse> getUserRoles(Long userId) {
+
+        if (userId == null || userId <= 0) {
+            throw new BusinessException("User Id must be a positive value.");
+        }
+
         userRepository
                 .findById(userId)
                 .orElseThrow(() -> {
@@ -131,6 +141,15 @@ public class UserRoleServiceImpl implements UserRoleService {
     @Override
     @Transactional
     public void removeRole(Long userId, Long roleId) {
+
+        if (userId == null || userId <= 0) {
+            throw new BusinessException("User Id must be a positive value.");
+        }
+
+        if (roleId == null || roleId <= 0) {
+            throw new BusinessException("Role Id must be a positive value.");
+        }
+
         userRepository
                 .findById(userId)
                 .orElseThrow(() -> {

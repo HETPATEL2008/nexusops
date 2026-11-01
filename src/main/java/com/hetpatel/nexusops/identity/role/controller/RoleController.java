@@ -13,6 +13,8 @@ import com.hetpatel.nexusops.identity.role.service.RoleService;
 
 import jakarta.validation.Valid;
 
+import jakarta.validation.constraints.Positive;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;
@@ -20,10 +22,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.validation.annotation.Validated;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/roles")
+@Validated
 @RequiredArgsConstructor
 public class RoleController {
 
@@ -49,7 +54,7 @@ public class RoleController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<RoleResponse>> getRoleById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<RoleResponse>> getRoleById(@PathVariable @Positive Long id) {
 
         RoleResponse response = roleService.getRoleById(id);
 
@@ -86,7 +91,7 @@ public class RoleController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<RoleResponse>> updateRole(
-            @PathVariable Long id,
+            @PathVariable @Positive Long id,
             @Valid @RequestBody UpdateRoleRequest request) {
 
         RoleResponse response = roleService.updateRole(id, request);
@@ -105,7 +110,7 @@ public class RoleController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteRole(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteRole(@PathVariable @Positive Long id) {
 
         roleService.deleteRole(id);
 
@@ -123,7 +128,7 @@ public class RoleController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<RoleResponse>> restoreRole(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<RoleResponse>> restoreRole(@PathVariable @Positive Long id) {
 
         RoleResponse response = roleService.restoreRole(id);
 

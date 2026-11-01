@@ -11,10 +11,14 @@ import com.hetpatel.nexusops.identity.rolepermission.service.RolePermissionServi
 
 import jakarta.validation.Valid;
 
+import jakarta.validation.constraints.Positive;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.validation.annotation.Validated;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/roles")
+@Validated
 @RequiredArgsConstructor
 public class RolePermissionController {
 
@@ -29,7 +34,7 @@ public class RolePermissionController {
 
     @PostMapping("/{roleId}/permissions")
     public ResponseEntity<ApiResponse<RolePermissionResponse>> assignPermission(
-            @PathVariable Long roleId,
+            @PathVariable @Positive Long roleId,
             @RequestBody @Valid AssignPermissionRequest request) {
 
         RolePermissionResponse response = rolePermissionService.assignPermission(roleId, request);
@@ -49,7 +54,7 @@ public class RolePermissionController {
 
     @GetMapping("/{roleId}/permissions")
     public ResponseEntity<ApiResponse<List<RolePermissionResponse>>> getRolePermissions(
-            @PathVariable Long roleId) {
+            @PathVariable @Positive Long roleId) {
 
         List<RolePermissionResponse> responses = rolePermissionService.getRolePermissions(roleId);
 
@@ -68,8 +73,8 @@ public class RolePermissionController {
 
     @DeleteMapping("/{roleId}/permissions/{permissionId}")
     public ResponseEntity<ApiResponse<Void>> removePermission(
-            @PathVariable Long roleId,
-            @PathVariable Long permissionId) {
+            @PathVariable @Positive Long roleId,
+            @PathVariable @Positive Long permissionId) {
 
         rolePermissionService.removePermission(roleId, permissionId);
 

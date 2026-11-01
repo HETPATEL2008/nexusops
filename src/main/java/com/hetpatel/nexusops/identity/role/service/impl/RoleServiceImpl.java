@@ -2,6 +2,7 @@ package com.hetpatel.nexusops.identity.role.service.impl;
 
 import com.hetpatel.nexusops.common.api.PageResponse;
 
+import com.hetpatel.nexusops.common.exception.BusinessException;
 import com.hetpatel.nexusops.common.exception.ConflictException;
 import com.hetpatel.nexusops.common.exception.ResourceNotFoundException;
 
@@ -49,6 +50,10 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional
     public RoleResponse createRole(CreateRoleRequest request) {
+
+        if (request == null) {
+            throw new BusinessException("Request must not be null");
+        }
 
         Organization organization = organizationRepository
                 .findById(request.getOrganizationId())
@@ -98,6 +103,10 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleResponse getRoleById(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
 
         Role role = roleRepository
                 .findById(id)
@@ -149,6 +158,14 @@ public class RoleServiceImpl implements RoleService {
             Long id,
             UpdateRoleRequest request) {
 
+        if (request == null) {
+            throw new BusinessException("Request must not be null");
+        }
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
+
         Role role = roleRepository
                 .findById(id)
                 .orElseThrow(() -> {
@@ -199,7 +216,12 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    @Transactional
     public void deleteRole(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
 
         Role role = roleRepository
                 .findById(id)
@@ -226,6 +248,10 @@ public class RoleServiceImpl implements RoleService {
     @Override
     @Transactional
     public RoleResponse restoreRole(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
 
         int restoredRows = roleRepository.restoreById(id);
 

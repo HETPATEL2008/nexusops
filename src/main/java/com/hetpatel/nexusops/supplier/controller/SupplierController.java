@@ -13,6 +13,8 @@ import com.hetpatel.nexusops.supplier.service.SupplierService;
 
 import jakarta.validation.Valid;
 
+import jakarta.validation.constraints.Positive;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;
@@ -23,10 +25,13 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.validation.annotation.Validated;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/suppliers")
+@Validated
 @RequiredArgsConstructor
 public class SupplierController {
 
@@ -52,7 +57,7 @@ public class SupplierController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<SupplierResponse>> getSupplierById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<SupplierResponse>> getSupplierById(@PathVariable @Positive Long id) {
 
         SupplierResponse response = supplierService.getSupplierById(id);
 
@@ -91,7 +96,7 @@ public class SupplierController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<SupplierResponse>> updateSupplier(
-            @PathVariable Long id,
+            @PathVariable @Positive Long id,
             @Valid @RequestBody UpdateSupplierRequest request) {
 
         SupplierResponse response =
@@ -111,7 +116,7 @@ public class SupplierController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteSupplier(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteSupplier(@PathVariable @Positive Long id) {
 
         supplierService.deleteSupplier(id);
 
@@ -129,7 +134,7 @@ public class SupplierController {
     }
 
     @PatchMapping("/{id}/restore")
-    public ResponseEntity<ApiResponse<SupplierResponse>> restoreSupplier(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<SupplierResponse>> restoreSupplier(@PathVariable @Positive Long id) {
 
         SupplierResponse response = supplierService.restoreSupplier(id);
 
@@ -147,7 +152,7 @@ public class SupplierController {
     }
 
     @PatchMapping("/{id}/verify")
-    public ResponseEntity<ApiResponse<SupplierResponse>> verifySupplier(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<SupplierResponse>> verifySupplier(@PathVariable @Positive Long id) {
 
         SupplierResponse response = supplierService.verifySupplier(id);
 
@@ -165,7 +170,7 @@ public class SupplierController {
     }
 
     @PatchMapping("/{id}/reject")
-    public ResponseEntity<ApiResponse<SupplierResponse>> rejectSupplier(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<SupplierResponse>> rejectSupplier(@PathVariable @Positive Long id) {
 
         SupplierResponse response = supplierService.rejectSupplier(id);
 

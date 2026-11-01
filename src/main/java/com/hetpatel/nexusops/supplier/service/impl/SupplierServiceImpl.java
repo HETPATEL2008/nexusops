@@ -2,6 +2,7 @@ package com.hetpatel.nexusops.supplier.service.impl;
 
 import com.hetpatel.nexusops.common.api.PageResponse;
 
+import com.hetpatel.nexusops.common.exception.BusinessException;
 import com.hetpatel.nexusops.common.exception.ConflictException;
 import com.hetpatel.nexusops.common.exception.ResourceNotFoundException;
 
@@ -48,6 +49,10 @@ public class SupplierServiceImpl implements SupplierService {
     @Transactional
     public SupplierResponse createSupplier(CreateSupplierRequest request) {
 
+        if (request == null) {
+            throw new BusinessException("Request must not be null");
+        }
+
         if (supplierRepository.existsBySupplierCode(request.getSupplierCode())) {
             log.warn(
                     "Supplier creation failed: code already exists, code={}",
@@ -75,6 +80,11 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public SupplierResponse getSupplierById(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
+
         Supplier supplier =
                 supplierRepository
                         .findById(id)
@@ -161,6 +171,14 @@ public class SupplierServiceImpl implements SupplierService {
             Long id,
             UpdateSupplierRequest request) {
 
+        if (request == null) {
+            throw new BusinessException("Request must not be null");
+        }
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
+
         Supplier supplier =
                 supplierRepository
                         .findById(id)
@@ -191,6 +209,11 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional
     public void deleteSupplier(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
+
         Supplier supplier =
                 supplierRepository
                         .findById(id)
@@ -217,6 +240,10 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional
     public SupplierResponse restoreSupplier(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
 
         int restoredRows = supplierRepository.restoreById(id);
 
@@ -246,6 +273,11 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional
     public SupplierResponse verifySupplier(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
+
         Supplier supplier =
                 supplierRepository
                         .findById(id)
@@ -290,6 +322,11 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     @Transactional
     public SupplierResponse rejectSupplier(Long id) {
+
+        if (id == null || id <= 0) {
+            throw new BusinessException("Id must be a positive value.");
+        }
+
         Supplier supplier =
                 supplierRepository
                         .findById(id)

@@ -13,6 +13,8 @@ import com.hetpatel.nexusops.organization.service.OrganizationService;
 
 import jakarta.validation.Valid;
 
+import jakarta.validation.constraints.Positive;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Pageable;
@@ -20,10 +22,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.validation.annotation.Validated;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/organizations")
+@Validated
 @RequiredArgsConstructor
 public class OrganizationController {
 
@@ -49,7 +54,7 @@ public class OrganizationController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<OrganizationResponse>> getOrganizationById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<OrganizationResponse>> getOrganizationById(@PathVariable @Positive Long id) {
 
         OrganizationResponse response = organizationService.getOrganizationById(id);
 
@@ -87,7 +92,7 @@ public class OrganizationController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<OrganizationResponse>> updateOrganization(
-            @PathVariable Long id,
+            @PathVariable @Positive Long id,
             @Valid @RequestBody UpdateOrganizationRequest request) {
 
         OrganizationResponse response = organizationService.updateOrganization(id, request);
@@ -106,7 +111,7 @@ public class OrganizationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteOrganization(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteOrganization(@PathVariable @Positive Long id) {
 
         organizationService.deleteOrganization(id);
 
@@ -124,7 +129,7 @@ public class OrganizationController {
     }
 
     @PatchMapping("/{id}/restore")
-    public ResponseEntity<ApiResponse<OrganizationResponse>> restoreOrganization(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<OrganizationResponse>> restoreOrganization(@PathVariable @Positive Long id) {
 
         OrganizationResponse response =
                 organizationService.restoreOrganization(id);
