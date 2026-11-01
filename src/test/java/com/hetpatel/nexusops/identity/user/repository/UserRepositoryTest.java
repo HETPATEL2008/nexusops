@@ -35,6 +35,7 @@ class UserRepositoryTest {
         jdbcTemplate.update("DELETE FROM role_permissions");
         jdbcTemplate.update("DELETE FROM users");
         jdbcTemplate.update("DELETE FROM roles");
+        jdbcTemplate.update("DELETE FROM organization_suppliers");
         jdbcTemplate.update("DELETE FROM organizations");
 
         jdbcTemplate.update(

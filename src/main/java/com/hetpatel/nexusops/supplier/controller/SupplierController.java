@@ -128,7 +128,7 @@ public class SupplierController {
                 .body(apiResponse);
     }
 
-    @PostMapping("/{id}/restore")
+    @PatchMapping("/{id}/restore")
     public ResponseEntity<ApiResponse<SupplierResponse>> restoreSupplier(@PathVariable Long id) {
 
         SupplierResponse response = supplierService.restoreSupplier(id);
@@ -146,7 +146,7 @@ public class SupplierController {
                 .body(apiResponse);
     }
 
-    @PostMapping("/{id}/verify")
+    @PatchMapping("/{id}/verify")
     public ResponseEntity<ApiResponse<SupplierResponse>> verifySupplier(@PathVariable Long id) {
 
         SupplierResponse response = supplierService.verifySupplier(id);
@@ -164,7 +164,7 @@ public class SupplierController {
                 .body(apiResponse);
     }
 
-    @PostMapping("/{id}/reject")
+    @PatchMapping("/{id}/reject")
     public ResponseEntity<ApiResponse<SupplierResponse>> rejectSupplier(@PathVariable Long id) {
 
         SupplierResponse response = supplierService.rejectSupplier(id);

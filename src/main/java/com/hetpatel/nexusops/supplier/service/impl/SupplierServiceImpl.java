@@ -38,6 +38,7 @@ import java.util.Locale;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class SupplierServiceImpl implements SupplierService {
 
     private final SupplierRepository supplierRepository;
