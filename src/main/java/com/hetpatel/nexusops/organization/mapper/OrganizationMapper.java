@@ -7,9 +7,7 @@ import com.hetpatel.nexusops.organization.dto.response.OrganizationResponse;
 
 import com.hetpatel.nexusops.organization.entity.Organization;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface OrganizationMapper {
@@ -24,6 +22,10 @@ public interface OrganizationMapper {
     @Mapping(target = "deletedAt", ignore = true)
     Organization toEntity(CreateOrganizationRequest createOrganizationRequest);
 
+    @BeanMapping(
+            nullValuePropertyMappingStrategy =
+                    NullValuePropertyMappingStrategy.IGNORE
+    )
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

@@ -89,7 +89,7 @@ public class UserController {
                 .body(apiResponse);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
         @PathVariable @Positive Long id,
         @Valid @RequestBody UpdateUserRequest request) {

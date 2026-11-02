@@ -2,6 +2,7 @@ package com.hetpatel.nexusops.supplier.dto.request;
 
 import com.hetpatel.nexusops.common.validation.ValidationMessages;
 
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import lombok.Data;
@@ -9,6 +10,10 @@ import lombok.Data;
 @Data
 public class UpdateSupplierRequest {
 
+    @Pattern(
+            regexp = ".*\\S.*",
+            message = ValidationMessages.REQUIRED
+    )
     @Size(max = 200, message = ValidationMessages.MAX_LENGTH)
     private String legalName;
 

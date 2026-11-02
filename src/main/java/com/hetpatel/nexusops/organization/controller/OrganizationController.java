@@ -90,7 +90,7 @@ public class OrganizationController {
                 .body(apiResponse);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<OrganizationResponse>> updateOrganization(
             @PathVariable @Positive Long id,
             @Valid @RequestBody UpdateOrganizationRequest request) {

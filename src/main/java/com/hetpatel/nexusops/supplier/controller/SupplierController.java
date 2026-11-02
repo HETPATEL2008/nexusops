@@ -94,7 +94,7 @@ public class SupplierController {
                 .body(apiResponse);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<SupplierResponse>> updateSupplier(
             @PathVariable @Positive Long id,
             @Valid @RequestBody UpdateSupplierRequest request) {

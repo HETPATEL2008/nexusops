@@ -7,9 +7,7 @@ import com.hetpatel.nexusops.identity.user.dto.response.UserResponse;
 
 import com.hetpatel.nexusops.identity.user.entity.User;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -18,6 +16,10 @@ public interface UserMapper {
     @Mapping(target = "passwordHash", ignore = true)
     User toEntity(CreateUserRequest createUserRequest);
 
+    @BeanMapping(
+            nullValuePropertyMappingStrategy =
+                    NullValuePropertyMappingStrategy.IGNORE
+    )
     @Mapping(target = "organization", ignore = true)
     @Mapping(target = "passwordHash", ignore = true)
     void updateEntity(
