@@ -225,25 +225,25 @@ class OrganizationServiceImplTest {
         PageResponse<OrganizationResponse> result =
                 organizationService.getAllOrganizations(pageable);
 
-        assertThat(result.getContent())
+        assertThat(result.content())
                 .hasSize(1);
 
-        assertThat(result.getContent().get(0))
+        assertThat(result.content().get(0))
                 .isSameAs(organizationResponse);
 
-        assertThat(result.getPage())
+        assertThat(result.page())
                 .isEqualTo(0);
 
-        assertThat(result.getSize())
+        assertThat(result.size())
                 .isEqualTo(10);
 
-        assertThat(result.getTotalElements())
+        assertThat(result.totalElements())
                 .isEqualTo(1);
 
-        assertThat(result.getTotalPages())
+        assertThat(result.totalPages())
                 .isEqualTo(1);
 
-        assertThat(result.isLast())
+        assertThat(result.last())
                 .isTrue();
 
         verify(organizationRepository)

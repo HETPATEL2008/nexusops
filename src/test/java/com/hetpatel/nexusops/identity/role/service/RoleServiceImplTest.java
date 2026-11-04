@@ -229,16 +229,16 @@ class RoleServiceImplTest {
                 roleService.getAllRoles(pageable);
 
         assertNotNull(result);
-        assertEquals(1, result.getContent().size());
-        assertEquals(0, result.getPage());
-        assertEquals(10, result.getSize());
-        assertEquals(1, result.getTotalElements());
-        assertEquals(1, result.getTotalPages());
-        assertTrue(result.isLast());
+        assertEquals(1, result.content().size());
+        assertEquals(0, result.page());
+        assertEquals(10, result.size());
+        assertEquals(1, result.totalElements());
+        assertEquals(1, result.totalPages());
+        assertTrue(result.last());
 
         assertEquals(
                 "ADMIN",
-                result.getContent().get(0).getName()
+                result.content().get(0).getName()
         );
 
         verify(roleRepository).findAll(pageable);

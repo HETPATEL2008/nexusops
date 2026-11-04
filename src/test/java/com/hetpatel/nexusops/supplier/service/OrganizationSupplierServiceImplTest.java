@@ -344,14 +344,14 @@ class OrganizationSupplierServiceImplTest {
                                 10
                         );
 
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0))
+        assertThat(result.content()).hasSize(1);
+        assertThat(result.content().get(0))
                 .isSameAs(associationResponse);
-        assertThat(result.getPage()).isZero();
-        assertThat(result.getSize()).isEqualTo(10);
-        assertThat(result.getTotalElements()).isEqualTo(1);
-        assertThat(result.getTotalPages()).isEqualTo(1);
-        assertThat(result.isLast()).isTrue();
+        assertThat(result.page()).isZero();
+        assertThat(result.size()).isEqualTo(10);
+        assertThat(result.totalElements()).isEqualTo(1);
+        assertThat(result.totalPages()).isEqualTo(1);
+        assertThat(result.last()).isTrue();
 
         verify(organizationService).getOrganizationById(ORGANIZATION_ID);
         verify(organizationSupplierMapper).toResponse(association);
@@ -386,10 +386,10 @@ class OrganizationSupplierServiceImplTest {
                                 10
                         );
 
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0))
+        assertThat(result.content()).hasSize(1);
+        assertThat(result.content().get(0))
                 .isSameAs(associationResponse);
-        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.totalElements()).isEqualTo(1);
 
         verify(supplierService).getSupplierById(SUPPLIER_ID);
         verify(organizationSupplierMapper).toResponse(association);

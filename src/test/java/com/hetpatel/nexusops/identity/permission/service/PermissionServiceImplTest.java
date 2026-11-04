@@ -145,21 +145,21 @@ class PermissionServiceImplTest {
 
         assertNotNull(result);
 
-        assertEquals(2, result.getContent().size());
-        assertEquals(0, result.getPage());
-        assertEquals(10, result.getSize());
-        assertEquals(2, result.getTotalElements());
-        assertEquals(1, result.getTotalPages());
-        assertTrue(result.isLast());
+        assertEquals(2, result.content().size());
+        assertEquals(0, result.page());
+        assertEquals(10, result.size());
+        assertEquals(2, result.totalElements());
+        assertEquals(1, result.totalPages());
+        assertTrue(result.last());
 
         assertEquals(
                 "USER_READ",
-                result.getContent().get(0).getName()
+                result.content().get(0).getName()
         );
 
         assertEquals(
                 "USER_CREATE",
-                result.getContent().get(1).getName()
+                result.content().get(1).getName()
         );
 
         verify(permissionRepository).findAll(pageable);

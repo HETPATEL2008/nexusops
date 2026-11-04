@@ -1,40 +1,27 @@
 package com.hetpatel.nexusops.identity.user.service;
 
 import com.hetpatel.nexusops.common.api.PageResponse;
-
 import com.hetpatel.nexusops.common.exception.ConflictException;
 import com.hetpatel.nexusops.common.exception.ResourceNotFoundException;
-
 import com.hetpatel.nexusops.identity.user.dto.request.CreateUserRequest;
 import com.hetpatel.nexusops.identity.user.dto.request.UpdateUserRequest;
-
 import com.hetpatel.nexusops.identity.user.dto.response.UserResponse;
-
 import com.hetpatel.nexusops.identity.user.entity.User;
 import com.hetpatel.nexusops.identity.user.entity.UserStatus;
-
 import com.hetpatel.nexusops.identity.user.mapper.UserMapper;
-
 import com.hetpatel.nexusops.identity.user.repository.UserRepository;
-
 import com.hetpatel.nexusops.identity.user.security.PasswordHasher;
-
 import com.hetpatel.nexusops.identity.user.service.impl.UserServiceImpl;
-
 import com.hetpatel.nexusops.organization.entity.Organization;
-
 import com.hetpatel.nexusops.organization.repository.OrganizationRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.mockito.ArgumentCaptor;
-
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.data.domain.Page;
@@ -46,9 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import static org.mockito.ArgumentMatchers.*;
-
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -292,16 +277,16 @@ class UserServiceImplTest {
                 userService.getAllUsers(pageable);
 
         assertNotNull(result);
-        assertEquals(1, result.getContent().size());
-        assertEquals(0, result.getPage());
-        assertEquals(10, result.getSize());
-        assertEquals(1, result.getTotalElements());
-        assertEquals(1, result.getTotalPages());
-        assertTrue(result.isLast());
+        assertEquals(1, result.content().size());
+        assertEquals(0, result.page());
+        assertEquals(10, result.size());
+        assertEquals(1, result.totalElements());
+        assertEquals(1, result.totalPages());
+        assertTrue(result.last());
 
         assertEquals(
                 "john.doe",
-                result.getContent().get(0).getUsername()
+                result.content().get(0).getUsername()
         );
 
         verify(userRepository).findAll(pageable);
@@ -502,7 +487,7 @@ class UserServiceImplTest {
         userService.deleteUser(1L);
 
         verify(userRepository).findById(1L);
-        verify(userRepository).deleteById(1L);
+        verify(userRepository).delete(user);
     }
 
     @Test
@@ -517,7 +502,7 @@ class UserServiceImplTest {
         );
 
         verify(userRepository).findById(99L);
-        verify(userRepository, never()).deleteById(anyLong());
+        verify(userRepository, never()).delete(any(User.class));
     }
 
     @Test

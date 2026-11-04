@@ -182,13 +182,13 @@ class SupplierServiceImplTest {
         PageResponse<SupplierResponse> result =
                 supplierService.searchSuppliers("Test", pageable);
 
-        assertThat(result.getContent()).hasSize(1);
-        assertThat(result.getContent().get(0)).isSameAs(supplierResponse);
-        assertThat(result.getPage()).isZero();
-        assertThat(result.getSize()).isEqualTo(10);
-        assertThat(result.getTotalElements()).isEqualTo(1);
-        assertThat(result.getTotalPages()).isEqualTo(1);
-        assertThat(result.isLast()).isTrue();
+        assertThat(result.content()).hasSize(1);
+        assertThat(result.content().get(0)).isSameAs(supplierResponse);
+        assertThat(result.page()).isZero();
+        assertThat(result.size()).isEqualTo(10);
+        assertThat(result.totalElements()).isEqualTo(1);
+        assertThat(result.totalPages()).isEqualTo(1);
+        assertThat(result.last()).isTrue();
 
         verify(supplierMapper).toResponse(supplier);
     }
