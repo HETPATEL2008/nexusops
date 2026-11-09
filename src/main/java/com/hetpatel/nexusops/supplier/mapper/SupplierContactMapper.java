@@ -18,6 +18,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface SupplierContactMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "supplier", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
@@ -32,7 +33,7 @@ public interface SupplierContactMapper {
                     NullValuePropertyMappingStrategy.IGNORE
     )
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "supplierId", ignore = true)
+    @Mapping(target = "supplier", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
@@ -45,5 +46,6 @@ public interface SupplierContactMapper {
             @MappingTarget SupplierContact supplierContact
     );
 
+    @Mapping(target = "supplierId", source = "supplier.id")
     SupplierContactResponse toResponse(SupplierContact supplierContact);
 }

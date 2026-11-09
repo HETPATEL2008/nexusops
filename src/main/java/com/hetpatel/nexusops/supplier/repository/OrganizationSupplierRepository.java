@@ -24,22 +24,22 @@ public interface OrganizationSupplierRepository extends
                                                 JpaRepository<OrganizationSupplier, Long>,
                                                 JpaSpecificationExecutor<OrganizationSupplier> {
 
-    boolean existsByOrganizationIdAndSupplierId(
+    boolean existsByOrganization_IdAndSupplier_Id(
             Long organizationId,
             Long supplierId
     );
 
-    Optional<OrganizationSupplier> findByOrganizationIdAndSupplierId(
+    Optional<OrganizationSupplier> findByOrganization_IdAndSupplier_Id(
             Long organizationId,
             Long supplierId
     );
 
-    Page<OrganizationSupplier> findAllByOrganizationId(
+    Page<OrganizationSupplier> findAllByOrganization_Id(
             Long organizationId,
             Pageable pageable
     );
 
-    Page<OrganizationSupplier> findAllBySupplierId(
+    Page<OrganizationSupplier> findAllBySupplier_Id(
             Long supplierId,
             Pageable pageable
     );

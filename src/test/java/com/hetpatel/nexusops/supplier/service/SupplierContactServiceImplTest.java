@@ -1,41 +1,27 @@
 package com.hetpatel.nexusops.supplier.service;
 
 import com.hetpatel.nexusops.common.api.PageResponse;
-
 import com.hetpatel.nexusops.common.exception.BusinessException;
 import com.hetpatel.nexusops.common.exception.ConflictException;
 import com.hetpatel.nexusops.common.exception.ResourceNotFoundException;
-
 import com.hetpatel.nexusops.common.validation.PhoneNumberValidator;
-
-import com.hetpatel.nexusops.supplier.entity.Supplier;
-
 import com.hetpatel.nexusops.supplier.dto.request.CreateSupplierContactRequest;
 import com.hetpatel.nexusops.supplier.dto.request.UpdateSupplierContactRequest;
-
 import com.hetpatel.nexusops.supplier.dto.response.SupplierContactResponse;
-
+import com.hetpatel.nexusops.supplier.entity.Supplier;
 import com.hetpatel.nexusops.supplier.entity.SupplierContact;
 import com.hetpatel.nexusops.supplier.entity.SupplierContactStatus;
 import com.hetpatel.nexusops.supplier.entity.SupplierContactType;
-
 import com.hetpatel.nexusops.supplier.mapper.SupplierContactMapper;
-
 import com.hetpatel.nexusops.supplier.repository.SupplierContactRepository;
 import com.hetpatel.nexusops.supplier.repository.SupplierRepository;
-
 import com.hetpatel.nexusops.supplier.service.impl.SupplierContactServiceImpl;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -47,9 +33,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import static org.mockito.ArgumentMatchers.*;
-
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,6 +54,7 @@ class SupplierContactServiceImplTest {
     @InjectMocks
     private SupplierContactServiceImpl supplierContactService;
 
+    private Supplier supplier;
     private SupplierContact contact;
     private SupplierContactResponse contactResponse;
 
@@ -85,10 +70,13 @@ class SupplierContactServiceImplTest {
     @BeforeEach
     void setUp() {
 
+        supplier = new Supplier();
+        supplier.setId(SUPPLIER_ID);
+
         contact = new SupplierContact();
 
         contact.setId(CONTACT_ID);
-        contact.setSupplierId(SUPPLIER_ID);
+        contact.setSupplier(supplier);
         contact.setFirstName(FIRST_NAME);
         contact.setLastName(LAST_NAME);
         contact.setEmail(EMAIL);
@@ -130,7 +118,7 @@ class SupplierContactServiceImplTest {
         request.setIsPrimary(false);
 
         when(supplierRepository.findById(SUPPLIER_ID))
-                .thenReturn(Optional.of(new com.hetpatel.nexusops.supplier.entity.Supplier()));
+                .thenReturn(Optional.of(supplier));
 
         when(phoneNumberValidator.validateAndNormalize(
                 COUNTRY_CODE, PHONE_NUMBER, "Phone number"
@@ -151,6 +139,7 @@ class SupplierContactServiceImplTest {
                 supplierContactService.createSupplierContact(request);
 
         assertThat(result).isSameAs(contactResponse);
+        assertThat(contact.getSupplier().getId()).isEqualTo(SUPPLIER_ID);
 
         verify(supplierRepository).findById(SUPPLIER_ID);
         verify(supplierContactRepository).save(contact);
@@ -216,7 +205,7 @@ class SupplierContactServiceImplTest {
         request.setContactType(SupplierContactType.GENERAL);
 
         when(supplierRepository.findById(SUPPLIER_ID))
-                .thenReturn(Optional.of(new Supplier()));
+                .thenReturn(Optional.of(supplier));
 
         assertThatThrownBy(
                 () -> supplierContactService.createSupplierContact(request)
@@ -239,7 +228,7 @@ class SupplierContactServiceImplTest {
         request.setIsPrimary(true);
 
         when(supplierRepository.findByIdForUpdate(SUPPLIER_ID))
-                .thenReturn(Optional.of(new Supplier()));
+                .thenReturn(Optional.of(supplier));
 
         when(supplierContactRepository.findPrimaryContactsForUpdate(
                 SUPPLIER_ID, SupplierContactStatus.ACTIVE
@@ -300,9 +289,9 @@ class SupplierContactServiceImplTest {
                 new PageImpl<>(List.of(contact), pageable, 1);
 
         when(supplierRepository.findById(SUPPLIER_ID))
-                .thenReturn(Optional.of(new Supplier()));
+                .thenReturn(Optional.of(supplier));
 
-        when(supplierContactRepository.findAllBySupplierId(
+        when(supplierContactRepository.findAllBySupplier_Id(
                 SUPPLIER_ID, pageable
         )).thenReturn(page);
 
@@ -324,7 +313,7 @@ class SupplierContactServiceImplTest {
 
         verify(supplierRepository).findById(SUPPLIER_ID);
         verify(supplierContactRepository)
-                .findAllBySupplierId(SUPPLIER_ID, pageable);
+                .findAllBySupplier_Id(SUPPLIER_ID, pageable);
     }
 
     @Test
@@ -340,7 +329,7 @@ class SupplierContactServiceImplTest {
         ).isInstanceOf(ResourceNotFoundException.class);
 
         verify(supplierContactRepository, never())
-                .findAllBySupplierId(anyLong(), any(Pageable.class));
+                .findAllBySupplier_Id(anyLong(), any(Pageable.class));
     }
 
     // SEARCH CONTACTS
@@ -358,7 +347,7 @@ class SupplierContactServiceImplTest {
                 new PageImpl<>(List.of(contact), pageable, 1);
 
         when(supplierRepository.findById(SUPPLIER_ID))
-                .thenReturn(Optional.of(new Supplier()));
+                .thenReturn(Optional.of(supplier));
 
         when(supplierContactRepository.findAll(
                 any(org.springframework.data.jpa.domain.Specification.class),
@@ -457,7 +446,7 @@ class SupplierContactServiceImplTest {
                 .thenReturn(Optional.of(contact));
 
         when(supplierRepository.findByIdForUpdate(SUPPLIER_ID))
-                .thenReturn(Optional.of(new Supplier()));
+                .thenReturn(Optional.of(supplier));
 
         when(supplierContactRepository.findByIdForUpdate(CONTACT_ID))
                 .thenReturn(Optional.of(contact));
@@ -477,7 +466,8 @@ class SupplierContactServiceImplTest {
                 () -> supplierContactService.deleteSupplierContact(CONTACT_ID)
         ).isInstanceOf(ResourceNotFoundException.class);
 
-        verify(supplierContactRepository, never()).delete(any(SupplierContact.class));
+        verify(supplierContactRepository, never())
+                .delete(any(SupplierContact.class));
     }
 
     // RESTORE
@@ -529,7 +519,7 @@ class SupplierContactServiceImplTest {
                 .thenReturn(Optional.of(contact));
 
         when(supplierRepository.findByIdForUpdate(SUPPLIER_ID))
-                .thenReturn(Optional.of(new Supplier()));
+                .thenReturn(Optional.of(supplier));
 
         when(supplierContactRepository.findByIdForUpdate(CONTACT_ID))
                 .thenReturn(Optional.of(contact));
@@ -562,7 +552,7 @@ class SupplierContactServiceImplTest {
                 .thenReturn(Optional.of(contact));
 
         when(supplierRepository.findByIdForUpdate(SUPPLIER_ID))
-                .thenReturn(Optional.of(new Supplier()));
+                .thenReturn(Optional.of(supplier));
 
         when(supplierContactRepository.findByIdForUpdate(CONTACT_ID))
                 .thenReturn(Optional.of(contact));
@@ -586,7 +576,7 @@ class SupplierContactServiceImplTest {
                 .thenReturn(Optional.of(contact));
 
         when(supplierRepository.findByIdForUpdate(SUPPLIER_ID))
-                .thenReturn(Optional.of(new Supplier()));
+                .thenReturn(Optional.of(supplier));
 
         when(supplierContactRepository.findByIdForUpdate(CONTACT_ID))
                 .thenReturn(Optional.of(contact));
@@ -615,7 +605,7 @@ class SupplierContactServiceImplTest {
 
         SupplierContact existingPrimary = new SupplierContact();
         existingPrimary.setId(99L);
-        existingPrimary.setSupplierId(SUPPLIER_ID);
+        existingPrimary.setSupplier(supplier);
         existingPrimary.setIsPrimary(true);
         existingPrimary.setStatus(SupplierContactStatus.ACTIVE);
 
@@ -623,7 +613,7 @@ class SupplierContactServiceImplTest {
                 .thenReturn(Optional.of(contact));
 
         when(supplierRepository.findByIdForUpdate(SUPPLIER_ID))
-                .thenReturn(Optional.of(new Supplier()));
+                .thenReturn(Optional.of(supplier));
 
         when(supplierContactRepository.findByIdForUpdate(CONTACT_ID))
                 .thenReturn(Optional.of(contact));
@@ -651,7 +641,7 @@ class SupplierContactServiceImplTest {
                 .thenReturn(Optional.of(contact));
 
         when(supplierRepository.findByIdForUpdate(SUPPLIER_ID))
-                .thenReturn(Optional.of(new Supplier()));
+                .thenReturn(Optional.of(supplier));
 
         when(supplierContactRepository.findByIdForUpdate(CONTACT_ID))
                 .thenReturn(Optional.of(contact));
@@ -681,7 +671,7 @@ class SupplierContactServiceImplTest {
                 .thenReturn(Optional.of(contact));
 
         when(supplierRepository.findByIdForUpdate(SUPPLIER_ID))
-                .thenReturn(Optional.of(new Supplier()));
+                .thenReturn(Optional.of(supplier));
 
         when(supplierContactRepository.findByIdForUpdate(CONTACT_ID))
                 .thenReturn(Optional.of(contact));

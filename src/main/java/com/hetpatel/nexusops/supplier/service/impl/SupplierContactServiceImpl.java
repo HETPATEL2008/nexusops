@@ -13,6 +13,7 @@ import com.hetpatel.nexusops.supplier.dto.request.UpdateSupplierContactRequest;
 
 import com.hetpatel.nexusops.supplier.dto.response.SupplierContactResponse;
 
+import com.hetpatel.nexusops.supplier.entity.Supplier;
 import com.hetpatel.nexusops.supplier.entity.SupplierContact;
 import com.hetpatel.nexusops.supplier.entity.SupplierContactStatus;
 import com.hetpatel.nexusops.supplier.entity.SupplierContactType;
@@ -69,30 +70,36 @@ public class SupplierContactServiceImpl implements SupplierContactService {
 
         boolean isPrimary = Boolean.TRUE.equals(request.getIsPrimary());
 
+        Supplier supplier;
+
         if (isPrimary) {
-            supplierRepository.findByIdForUpdate(supplierId)
-                    .orElseThrow(() -> {
-                        log.warn(
-                                "Supplier contact creation failed: supplier not found, supplierId={}",
-                                supplierId
-                        );
+            supplier =
+                    supplierRepository
+                            .findByIdForUpdate(supplierId)
+                            .orElseThrow(() -> {
+                                log.warn(
+                                        "Supplier contact creation failed: supplier not found, supplierId={}",
+                                        supplierId
+                                );
 
-                        return new ResourceNotFoundException(
-                                "Supplier not found with id: " + supplierId
-                        );
-                    });
+                                return new ResourceNotFoundException(
+                                        "Supplier not found with id: " + supplierId
+                                );
+                            });
         } else {
-            supplierRepository.findById(supplierId)
-                    .orElseThrow(() -> {
-                        log.warn(
-                                "Supplier contact creation failed: supplier not found, supplierId={}",
-                                supplierId
-                        );
+            supplier =
+                    supplierRepository
+                            .findById(supplierId)
+                            .orElseThrow(() -> {
+                                log.warn(
+                                        "Supplier contact creation failed: supplier not found, supplierId={}",
+                                        supplierId
+                                );
 
-                        return new ResourceNotFoundException(
-                                "Supplier not found with id: " + supplierId
-                        );
-                    });
+                                return new ResourceNotFoundException(
+                                        "Supplier not found with id: " + supplierId
+                                );
+                            });
         }
 
         boolean hasEmail = hasText(request.getEmail());
@@ -142,6 +149,7 @@ public class SupplierContactServiceImpl implements SupplierContactService {
         }
 
         SupplierContact supplierContact = supplierContactMapper.toEntity(request);
+        supplierContact.setSupplier(supplier);
 
         if (normalizedPhone != null) {
             supplierContact.setPhoneCountryCode(normalizedPhone.countryCode());
@@ -164,7 +172,7 @@ public class SupplierContactServiceImpl implements SupplierContactService {
         log.info(
                 "Supplier contact created successfully: contactId={}, supplierId={}",
                 savedContact.getId(),
-                savedContact.getSupplierId()
+                savedContact.getSupplier().getId()
         );
 
         return supplierContactMapper.toResponse(savedContact);
@@ -196,7 +204,7 @@ public class SupplierContactServiceImpl implements SupplierContactService {
         log.info(
                 "Supplier contact retrieved successfully: contactId={}, supplierId={}",
                 supplierContact.getId(),
-                supplierContact.getSupplierId()
+                supplierContact.getSupplier().getId()
         );
 
         return supplierContactMapper.toResponse(supplierContact);
@@ -242,10 +250,11 @@ public class SupplierContactServiceImpl implements SupplierContactService {
         Pageable pageable = PageRequest.of(
                 page,
                 size,
-                Sort.by(Sort.Direction.DESC, "id"));
+                Sort.by(Sort.Direction.DESC, "id")
+        );
 
         Page<SupplierContact> supplierContactPage =
-                supplierContactRepository.findAllBySupplierId(
+                supplierContactRepository.findAllBySupplier_Id(
                         supplierId,
                         pageable
                 );
@@ -309,7 +318,10 @@ public class SupplierContactServiceImpl implements SupplierContactService {
 
         Specification<SupplierContact> specification =
                 (root, query, criteriaBuilder) ->
-                        criteriaBuilder.equal(root.get("supplierId"), supplierId);
+                        criteriaBuilder.equal(
+                                root.get("supplier").get("id"),
+                                supplierId
+                        );
 
         if (contactType != null) {
             specification = specification.and(
@@ -484,7 +496,7 @@ public class SupplierContactServiceImpl implements SupplierContactService {
         log.info(
                 "Supplier contact updated successfully: contactId={}, supplierId={}",
                 updatedContact.getId(),
-                updatedContact.getSupplierId()
+                updatedContact.getSupplier().getId()
         );
 
         return supplierContactMapper.toResponse(updatedContact);
@@ -503,7 +515,7 @@ public class SupplierContactServiceImpl implements SupplierContactService {
                         "Supplier contact not found with id: " + id
                 ));
 
-        Long supplierId = supplierContact.getSupplierId();
+        Long supplierId = supplierContact.getSupplier().getId();
 
         supplierRepository.findByIdForUpdate(supplierId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -526,7 +538,7 @@ public class SupplierContactServiceImpl implements SupplierContactService {
         log.info(
                 "Supplier contact deleted successfully: id={}, supplierId={}",
                 id,
-                supplierContact.getSupplierId()
+                supplierContact.getSupplier().getId()
         );
     }
 
@@ -569,7 +581,7 @@ public class SupplierContactServiceImpl implements SupplierContactService {
         log.info(
                 "Supplier contact restored successfully: contactId={}, supplierId={}",
                 restoredContact.getId(),
-                restoredContact.getSupplierId()
+                restoredContact.getSupplier().getId()
         );
 
         return supplierContactMapper.toResponse(restoredContact);
@@ -599,7 +611,7 @@ public class SupplierContactServiceImpl implements SupplierContactService {
                             );
                         });
 
-        Long supplierId = supplierContact.getSupplierId();
+        Long supplierId = supplierContact.getSupplier().getId();
 
         supplierRepository
                 .findByIdForUpdate(supplierId)
@@ -631,7 +643,7 @@ public class SupplierContactServiceImpl implements SupplierContactService {
             log.info(
                     "Supplier contact is already the primary contact: contactId={}, supplierId={}",
                     supplierContact.getId(),
-                    supplierContact.getSupplierId()
+                    supplierContact.getSupplier().getId()
             );
 
             return supplierContactMapper.toResponse(supplierContact);
@@ -649,7 +661,7 @@ public class SupplierContactServiceImpl implements SupplierContactService {
             log.info(
                     "Previous primary supplier contact unset: contactId={}, supplierId={}",
                     existingPrimaryContact.getId(),
-                    existingPrimaryContact.getSupplierId()
+                    existingPrimaryContact.getSupplier().getId()
             );
         });
 
@@ -661,7 +673,7 @@ public class SupplierContactServiceImpl implements SupplierContactService {
         log.info(
                 "Primary supplier contact set successfully: contactId={}, supplierId={}",
                 primaryContact.getId(),
-                primaryContact.getSupplierId()
+                primaryContact.getSupplier().getId()
         );
 
         return supplierContactMapper.toResponse(primaryContact);
@@ -690,7 +702,7 @@ public class SupplierContactServiceImpl implements SupplierContactService {
                     );
                 });
 
-        Long supplierId = supplierContact.getSupplierId();
+        Long supplierId = supplierContact.getSupplier().getId();
 
         supplierRepository.findByIdForUpdate(supplierId)
                 .orElseThrow(() -> {
@@ -739,7 +751,7 @@ public class SupplierContactServiceImpl implements SupplierContactService {
         log.info(
                 "Supplier contact activated successfully: contactId={}, supplierId={}",
                 activatedContact.getId(),
-                activatedContact.getSupplierId()
+                activatedContact.getSupplier().getId()
         );
 
         return supplierContactMapper.toResponse(activatedContact);
@@ -758,7 +770,7 @@ public class SupplierContactServiceImpl implements SupplierContactService {
                         "Supplier contact not found with id: " + id
                 ));
 
-        Long supplierId = supplierContact.getSupplierId();
+        Long supplierId = supplierContact.getSupplier().getId();
 
         supplierRepository.findByIdForUpdate(supplierId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -787,12 +799,11 @@ public class SupplierContactServiceImpl implements SupplierContactService {
         log.info(
                 "Supplier contact deactivated successfully: id={}, supplierId={}",
                 deactivatedContact.getId(),
-                deactivatedContact.getSupplierId()
+                deactivatedContact.getSupplier().getId()
         );
 
         return supplierContactMapper.toResponse(deactivatedContact);
     }
-
 
     // Helper Method(s)
 

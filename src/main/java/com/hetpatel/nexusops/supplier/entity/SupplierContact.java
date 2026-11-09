@@ -27,9 +27,9 @@ public class SupplierContact extends BaseEntity {
     @ToString.Include
     private Long id;
 
-    @Column(name = "supplier_id", nullable = false)
-    @ToString.Include
-    private Long supplierId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "supplier_id", nullable = false)
+    private Supplier supplier;
 
     @Column(name = "first_name", nullable = false, length = 100)
     @ToString.Include

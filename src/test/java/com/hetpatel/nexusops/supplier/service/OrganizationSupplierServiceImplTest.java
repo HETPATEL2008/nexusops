@@ -5,6 +5,8 @@ import com.hetpatel.nexusops.common.exception.BusinessException;
 import com.hetpatel.nexusops.common.exception.ConflictException;
 import com.hetpatel.nexusops.common.exception.ResourceNotFoundException;
 
+import com.hetpatel.nexusops.organization.entity.Organization;
+import com.hetpatel.nexusops.organization.repository.OrganizationRepository;
 import com.hetpatel.nexusops.organization.service.OrganizationService;
 
 import com.hetpatel.nexusops.supplier.dto.request.CreateOrganizationSupplierRequest;
@@ -14,12 +16,14 @@ import com.hetpatel.nexusops.supplier.dto.response.SupplierResponse;
 
 import com.hetpatel.nexusops.supplier.entity.OrganizationSupplier;
 import com.hetpatel.nexusops.supplier.entity.OrganizationSupplierStatus;
-import com.hetpatel.nexusops.supplier.entity.SupplierRiskLevel;
+import com.hetpatel.nexusops.supplier.entity.Supplier;
 import com.hetpatel.nexusops.supplier.entity.SupplierRegistrationStatus;
+import com.hetpatel.nexusops.supplier.entity.SupplierRiskLevel;
 
 import com.hetpatel.nexusops.supplier.mapper.OrganizationSupplierMapper;
 
 import com.hetpatel.nexusops.supplier.repository.OrganizationSupplierRepository;
+import com.hetpatel.nexusops.supplier.repository.SupplierRepository;
 
 import com.hetpatel.nexusops.supplier.service.impl.OrganizationSupplierServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +32,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.data.domain.Page;
@@ -60,6 +63,12 @@ class OrganizationSupplierServiceImplTest {
     private OrganizationSupplierMapper organizationSupplierMapper;
 
     @Mock
+    private OrganizationRepository organizationRepository;
+
+    @Mock
+    private SupplierRepository supplierRepository;
+
+    @Mock
     private OrganizationService organizationService;
 
     @Mock
@@ -67,6 +76,9 @@ class OrganizationSupplierServiceImplTest {
 
     @InjectMocks
     private OrganizationSupplierServiceImpl organizationSupplierService;
+
+    private Organization organization;
+    private Supplier supplier;
 
     private OrganizationSupplier association;
     private OrganizationSupplierResponse associationResponse;
@@ -79,11 +91,20 @@ class OrganizationSupplierServiceImplTest {
     @BeforeEach
     void setUp() {
 
+        organization = new Organization();
+        organization.setId(ORGANIZATION_ID);
+
+        supplier = new Supplier();
+        supplier.setId(SUPPLIER_ID);
+        supplier.setRegistrationStatus(
+                SupplierRegistrationStatus.VERIFIED
+        );
+
         association = new OrganizationSupplier();
 
         association.setId(ASSOCIATION_ID);
-        association.setOrganizationId(ORGANIZATION_ID);
-        association.setSupplierId(SUPPLIER_ID);
+        association.setOrganization(organization);
+        association.setSupplier(supplier);
         association.setStatus(OrganizationSupplierStatus.PENDING);
         association.setRiskLevel(SupplierRiskLevel.LOW);
         association.setNotes("Test association");
@@ -117,8 +138,11 @@ class OrganizationSupplierServiceImplTest {
         request.setSupplierId(SUPPLIER_ID);
         request.setNotes("Test association");
 
-        when(supplierService.getSupplierById(SUPPLIER_ID))
-                .thenReturn(supplierResponse);
+        when(organizationRepository.findById(ORGANIZATION_ID))
+                .thenReturn(Optional.of(organization));
+
+        when(supplierRepository.findById(SUPPLIER_ID))
+                .thenReturn(Optional.of(supplier));
 
         when(organizationSupplierRepository
                 .findDeletedStatusByOrganizationIdAndSupplierId(
@@ -139,13 +163,17 @@ class OrganizationSupplierServiceImplTest {
                 organizationSupplierService.createAssociation(request);
 
         assertThat(result).isSameAs(associationResponse);
+        assertThat(association.getOrganization().getId())
+                .isEqualTo(ORGANIZATION_ID);
+        assertThat(association.getSupplier().getId())
+                .isEqualTo(SUPPLIER_ID);
         assertThat(association.getStatus())
                 .isEqualTo(OrganizationSupplierStatus.PENDING);
         assertThat(association.getRiskLevel())
                 .isEqualTo(SupplierRiskLevel.LOW);
 
-        verify(organizationService).getOrganizationById(ORGANIZATION_ID);
-        verify(supplierService).getSupplierById(SUPPLIER_ID);
+        verify(organizationRepository).findById(ORGANIZATION_ID);
+        verify(supplierRepository).findById(SUPPLIER_ID);
         verify(organizationSupplierRepository)
                 .saveAndFlush(association);
         verify(organizationSupplierMapper).toResponse(association);
@@ -171,12 +199,15 @@ class OrganizationSupplierServiceImplTest {
         request.setOrganizationId(ORGANIZATION_ID);
         request.setSupplierId(SUPPLIER_ID);
 
-        supplierResponse.setRegistrationStatus(
+        supplier.setRegistrationStatus(
                 SupplierRegistrationStatus.PENDING_REVIEW
         );
 
-        when(supplierService.getSupplierById(SUPPLIER_ID))
-                .thenReturn(supplierResponse);
+        when(organizationRepository.findById(ORGANIZATION_ID))
+                .thenReturn(Optional.of(organization));
+
+        when(supplierRepository.findById(SUPPLIER_ID))
+                .thenReturn(Optional.of(supplier));
 
         assertThatThrownBy(
                 () -> organizationSupplierService.createAssociation(request)
@@ -195,8 +226,11 @@ class OrganizationSupplierServiceImplTest {
         request.setOrganizationId(ORGANIZATION_ID);
         request.setSupplierId(SUPPLIER_ID);
 
-        when(supplierService.getSupplierById(SUPPLIER_ID))
-                .thenReturn(supplierResponse);
+        when(organizationRepository.findById(ORGANIZATION_ID))
+                .thenReturn(Optional.of(organization));
+
+        when(supplierRepository.findById(SUPPLIER_ID))
+                .thenReturn(Optional.of(supplier));
 
         when(organizationSupplierRepository
                 .findDeletedStatusByOrganizationIdAndSupplierId(
@@ -221,8 +255,11 @@ class OrganizationSupplierServiceImplTest {
         request.setOrganizationId(ORGANIZATION_ID);
         request.setSupplierId(SUPPLIER_ID);
 
-        when(supplierService.getSupplierById(SUPPLIER_ID))
-                .thenReturn(supplierResponse);
+        when(organizationRepository.findById(ORGANIZATION_ID))
+                .thenReturn(Optional.of(organization));
+
+        when(supplierRepository.findById(SUPPLIER_ID))
+                .thenReturn(Optional.of(supplier));
 
         when(organizationSupplierRepository
                 .findDeletedStatusByOrganizationIdAndSupplierId(
@@ -279,7 +316,7 @@ class OrganizationSupplierServiceImplTest {
     void getAssociationByOrganizationAndSupplier_shouldReturnAssociation() {
 
         when(organizationSupplierRepository
-                .findByOrganizationIdAndSupplierId(
+                .findByOrganization_IdAndSupplier_Id(
                         ORGANIZATION_ID,
                         SUPPLIER_ID
                 )).thenReturn(Optional.of(association));
@@ -301,7 +338,7 @@ class OrganizationSupplierServiceImplTest {
     void getAssociationByOrganizationAndSupplier_shouldThrowNotFound_whenAssociationDoesNotExist() {
 
         when(organizationSupplierRepository
-                .findByOrganizationIdAndSupplierId(
+                .findByOrganization_IdAndSupplier_Id(
                         ORGANIZATION_ID,
                         SUPPLIER_ID
                 )).thenReturn(Optional.empty());
@@ -330,7 +367,7 @@ class OrganizationSupplierServiceImplTest {
                 new PageImpl<>(List.of(association), pageable, 1);
 
         when(organizationSupplierRepository
-                .findAllByOrganizationId(ORGANIZATION_ID, pageable))
+                .findAllByOrganization_Id(ORGANIZATION_ID, pageable))
                 .thenReturn(page);
 
         when(organizationSupplierMapper.toResponse(association))
@@ -372,7 +409,7 @@ class OrganizationSupplierServiceImplTest {
                 new PageImpl<>(List.of(association), pageable, 1);
 
         when(organizationSupplierRepository
-                .findAllBySupplierId(SUPPLIER_ID, pageable))
+                .findAllBySupplier_Id(SUPPLIER_ID, pageable))
                 .thenReturn(page);
 
         when(organizationSupplierMapper.toResponse(association))

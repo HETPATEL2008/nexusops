@@ -6,19 +6,23 @@ import com.hetpatel.nexusops.common.exception.BusinessException;
 import com.hetpatel.nexusops.common.exception.ConflictException;
 import com.hetpatel.nexusops.common.exception.ResourceNotFoundException;
 
+import com.hetpatel.nexusops.organization.entity.Organization;
+
+import com.hetpatel.nexusops.organization.repository.OrganizationRepository;
+
 import com.hetpatel.nexusops.organization.service.OrganizationService;
 
 import com.hetpatel.nexusops.supplier.dto.request.CreateOrganizationSupplierRequest;
 import com.hetpatel.nexusops.supplier.dto.request.UpdateOrganizationSupplierRequest;
 
 import com.hetpatel.nexusops.supplier.dto.response.OrganizationSupplierResponse;
-import com.hetpatel.nexusops.supplier.dto.response.SupplierResponse;
 
 import com.hetpatel.nexusops.supplier.entity.*;
 
 import com.hetpatel.nexusops.supplier.mapper.OrganizationSupplierMapper;
 
 import com.hetpatel.nexusops.supplier.repository.OrganizationSupplierRepository;
+import com.hetpatel.nexusops.supplier.repository.SupplierRepository;
 
 import com.hetpatel.nexusops.supplier.service.OrganizationSupplierService;
 import com.hetpatel.nexusops.supplier.service.SupplierService;
@@ -48,6 +52,9 @@ public class OrganizationSupplierServiceImpl implements OrganizationSupplierServ
     private final OrganizationSupplierRepository organizationSupplierRepository;
     private final OrganizationSupplierMapper organizationSupplierMapper;
 
+    private final OrganizationRepository organizationRepository;
+    private final SupplierRepository supplierRepository;
+
     private final OrganizationService organizationService;
     private final SupplierService supplierService;
 
@@ -62,10 +69,44 @@ public class OrganizationSupplierServiceImpl implements OrganizationSupplierServ
         Long organizationId = request.getOrganizationId();
         Long supplierId = request.getSupplierId();
 
-        organizationService.getOrganizationById(organizationId);
-        SupplierResponse supplier = supplierService.getSupplierById(supplierId);
+        if (organizationId == null || organizationId <= 0) {
+            throw new BusinessException("Organization Id must be a positive value.");
+        }
+
+        if (supplierId == null || supplierId <= 0) {
+            throw new BusinessException("Supplier Id must be a positive value.");
+        }
+
+        Organization organization =
+                organizationRepository
+                        .findById(organizationId)
+                        .orElseThrow(() -> {
+                            log.warn(
+                                    "Organization-supplier association creation failed: organization not found, organizationId={}",
+                                    organizationId
+                            );
+
+                            return new ResourceNotFoundException(
+                                    "Organization not found with id: " + organizationId
+                            );
+                        });
+
+        Supplier supplier =
+                supplierRepository
+                        .findById(supplierId)
+                        .orElseThrow(() -> {
+                            log.warn(
+                                    "Organization-supplier association creation failed: supplier not found, supplierId={}",
+                                    supplierId
+                            );
+
+                            return new ResourceNotFoundException(
+                                    "Supplier not found with id: " + supplierId
+                            );
+                        });
 
         if (supplier.getRegistrationStatus() != SupplierRegistrationStatus.VERIFIED) {
+
             log.warn(
                     "Cannot associate supplier with organization: supplierId={}, registrationStatus={}",
                     supplierId,
@@ -78,7 +119,8 @@ public class OrganizationSupplierServiceImpl implements OrganizationSupplierServ
         }
 
         Optional<Boolean> deletedStatus =
-                organizationSupplierRepository.findDeletedStatusByOrganizationIdAndSupplierId(
+                organizationSupplierRepository
+                        .findDeletedStatusByOrganizationIdAndSupplierId(
                         organizationId,
                         supplierId
                 );
@@ -108,6 +150,9 @@ public class OrganizationSupplierServiceImpl implements OrganizationSupplierServ
         }
 
         OrganizationSupplier association = organizationSupplierMapper.toEntity(request);
+
+        association.setOrganization(organization);
+        association.setSupplier(supplier);
 
         association.setStatus(OrganizationSupplierStatus.PENDING);
         association.setRiskLevel(SupplierRiskLevel.LOW);
@@ -166,7 +211,7 @@ public class OrganizationSupplierServiceImpl implements OrganizationSupplierServ
 
         OrganizationSupplier organizationSupplier =
                 organizationSupplierRepository
-                        .findByOrganizationIdAndSupplierId(organizationId, supplierId)
+                        .findByOrganization_IdAndSupplier_Id(organizationId, supplierId)
                         .orElseThrow(() -> {
                             log.warn(
                                     "Organization-supplier association not found: organizationId={}, supplierId={}",
@@ -212,7 +257,7 @@ public class OrganizationSupplierServiceImpl implements OrganizationSupplierServ
         );
 
         Page<OrganizationSupplier> associationPage =
-                organizationSupplierRepository.findAllByOrganizationId(
+                organizationSupplierRepository.findAllByOrganization_Id(
                         organizationId,
                         pageable
                 );
@@ -266,7 +311,7 @@ public class OrganizationSupplierServiceImpl implements OrganizationSupplierServ
         );
 
         Page<OrganizationSupplier> associationPage =
-                organizationSupplierRepository.findAllBySupplierId(
+                organizationSupplierRepository.findAllBySupplier_Id(
                         supplierId,
                         pageable
                 );
@@ -329,8 +374,8 @@ public class OrganizationSupplierServiceImpl implements OrganizationSupplierServ
         log.info(
                 "Organization-supplier association updated successfully: id={}, organizationId={}, supplierId={}",
                 updatedAssociation.getId(),
-                updatedAssociation.getOrganizationId(),
-                updatedAssociation.getSupplierId()
+                updatedAssociation.getOrganization().getId(),
+                updatedAssociation.getSupplier().getId()
         );
 
         return organizationSupplierMapper.toResponse(updatedAssociation);
@@ -381,8 +426,8 @@ public class OrganizationSupplierServiceImpl implements OrganizationSupplierServ
         log.info(
                 "Organization-supplier association activated successfully: id={}, organizationId={}, supplierId={}",
                 activatedAssociation.getId(),
-                activatedAssociation.getOrganizationId(),
-                activatedAssociation.getSupplierId()
+                activatedAssociation.getOrganization().getId(),
+                activatedAssociation.getSupplier().getId()
         );
 
         return organizationSupplierMapper.toResponse(activatedAssociation);
@@ -432,8 +477,8 @@ public class OrganizationSupplierServiceImpl implements OrganizationSupplierServ
         log.info(
                 "Organization-supplier association deactivated successfully: id={}, organizationId={}, supplierId={}",
                 deactivatedAssociation.getId(),
-                deactivatedAssociation.getOrganizationId(),
-                deactivatedAssociation.getSupplierId()
+                deactivatedAssociation.getOrganization().getId(),
+                deactivatedAssociation.getSupplier().getId()
         );
 
         return organizationSupplierMapper.toResponse(deactivatedAssociation);
@@ -483,8 +528,8 @@ public class OrganizationSupplierServiceImpl implements OrganizationSupplierServ
         log.info(
                 "Organization-supplier association suspended successfully: id={}, organizationId={}, supplierId={}",
                 suspendedAssociation.getId(),
-                suspendedAssociation.getOrganizationId(),
-                suspendedAssociation.getSupplierId()
+                suspendedAssociation.getOrganization().getId(),
+                suspendedAssociation.getSupplier().getId()
         );
 
         return organizationSupplierMapper.toResponse(suspendedAssociation);
@@ -535,8 +580,8 @@ public class OrganizationSupplierServiceImpl implements OrganizationSupplierServ
         log.info(
                 "Organization-supplier association blocked successfully: id={}, organizationId={}, supplierId={}",
                 blockedAssociation.getId(),
-                blockedAssociation.getOrganizationId(),
-                blockedAssociation.getSupplierId()
+                blockedAssociation.getOrganization().getId(),
+                blockedAssociation.getSupplier().getId()
         );
 
         return organizationSupplierMapper.toResponse(blockedAssociation);
@@ -591,8 +636,8 @@ public class OrganizationSupplierServiceImpl implements OrganizationSupplierServ
         log.info(
                 "Organization-supplier association risk level updated successfully: id={}, organizationId={}, supplierId={}, riskLevel={}",
                 updatedRiskLevel.getId(),
-                updatedRiskLevel.getOrganizationId(),
-                updatedRiskLevel.getSupplierId(),
+                updatedRiskLevel.getOrganization().getId(),
+                updatedRiskLevel.getSupplier().getId(),
                 updatedRiskLevel.getRiskLevel()
         );
 
@@ -664,8 +709,8 @@ public class OrganizationSupplierServiceImpl implements OrganizationSupplierServ
         log.info(
                 "Organization-supplier association restored successfully: id={}, organizationId={}, supplierId={}",
                 savedAssociation.getId(),
-                savedAssociation.getOrganizationId(),
-                savedAssociation.getSupplierId()
+                savedAssociation.getOrganization().getId(),
+                savedAssociation.getSupplier().getId()
         );
 
         return organizationSupplierMapper.toResponse(savedAssociation);

@@ -2,6 +2,8 @@ package com.hetpatel.nexusops.supplier.entity;
 
 import com.hetpatel.nexusops.common.persistence.BaseEntity;
 
+import com.hetpatel.nexusops.organization.entity.Organization;
+
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -27,13 +29,13 @@ public class OrganizationSupplier extends BaseEntity {
     @ToString.Include
     private Long id;
 
-    @Column(name = "organization_id", nullable = false)
-    @ToString.Include
-    private Long organizationId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "organization_id", nullable = false)
+    private Organization organization;
 
-    @Column(name = "supplier_id", nullable = false)
-    @ToString.Include
-    private Long supplierId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "supplier_id", nullable = false)
+    private Supplier supplier;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

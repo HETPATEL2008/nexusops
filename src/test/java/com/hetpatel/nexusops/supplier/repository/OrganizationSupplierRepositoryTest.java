@@ -1,8 +1,10 @@
 package com.hetpatel.nexusops.supplier.repository;
 
 import com.hetpatel.nexusops.common.persistence.AuditConfig;
+import com.hetpatel.nexusops.organization.entity.Organization;
 import com.hetpatel.nexusops.supplier.entity.OrganizationSupplier;
 import com.hetpatel.nexusops.supplier.entity.OrganizationSupplierStatus;
+import com.hetpatel.nexusops.supplier.entity.Supplier;
 import com.hetpatel.nexusops.supplier.entity.SupplierRiskLevel;
 
 import jakarta.persistence.EntityManager;
@@ -34,6 +36,9 @@ class OrganizationSupplierRepositoryTest {
 
     private Long organizationId;
     private Long supplierId;
+
+    private Organization organization;
+    private Supplier supplier;
 
     @BeforeEach
     void setUp() {
@@ -102,14 +107,17 @@ class OrganizationSupplierRepositoryTest {
 
         entityManager.flush();
         entityManager.clear();
+
+        organization = entityManager.find(Organization.class, organizationId);
+        supplier = entityManager.find(Supplier.class, supplierId);
     }
 
     private OrganizationSupplier createAssociation() {
 
         OrganizationSupplier association = new OrganizationSupplier();
 
-        association.setOrganizationId(organizationId);
-        association.setSupplierId(supplierId);
+        association.setOrganization(organization);
+        association.setSupplier(supplier);
         association.setStatus(OrganizationSupplierStatus.PENDING);
         association.setRiskLevel(SupplierRiskLevel.LOW);
         association.setNotes("Test association");
@@ -132,8 +140,8 @@ class OrganizationSupplierRepositoryTest {
                         .orElseThrow();
 
         assertThat(result.getId()).isNotNull();
-        assertThat(result.getOrganizationId()).isEqualTo(organizationId);
-        assertThat(result.getSupplierId()).isEqualTo(supplierId);
+        assertThat(result.getOrganization().getId()).isEqualTo(organizationId);
+        assertThat(result.getSupplier().getId()).isEqualTo(supplierId);
         assertThat(result.getStatus())
                 .isEqualTo(OrganizationSupplierStatus.PENDING);
         assertThat(result.getRiskLevel())
@@ -142,7 +150,7 @@ class OrganizationSupplierRepositoryTest {
     }
 
     @Test
-    void existsByOrganizationIdAndSupplierId_shouldReturnTrue_whenAssociationExists() {
+    void existsByOrganization_IdAndSupplier_Id_shouldReturnTrue_whenAssociationExists() {
 
         organizationSupplierRepository.save(createAssociation());
 
@@ -150,7 +158,7 @@ class OrganizationSupplierRepositoryTest {
 
         boolean exists =
                 organizationSupplierRepository
-                        .existsByOrganizationIdAndSupplierId(
+                        .existsByOrganization_IdAndSupplier_Id(
                                 organizationId,
                                 supplierId
                         );
@@ -159,11 +167,11 @@ class OrganizationSupplierRepositoryTest {
     }
 
     @Test
-    void existsByOrganizationIdAndSupplierId_shouldReturnFalse_whenAssociationDoesNotExist() {
+    void existsByOrganization_IdAndSupplier_Id_shouldReturnFalse_whenAssociationDoesNotExist() {
 
         boolean exists =
                 organizationSupplierRepository
-                        .existsByOrganizationIdAndSupplierId(
+                        .existsByOrganization_IdAndSupplier_Id(
                                 organizationId,
                                 999999L
                         );
@@ -172,7 +180,7 @@ class OrganizationSupplierRepositoryTest {
     }
 
     @Test
-    void findByOrganizationIdAndSupplierId_shouldReturnAssociation_whenAssociationExists() {
+    void findByOrganization_IdAndSupplier_Id_shouldReturnAssociation_whenAssociationExists() {
 
         OrganizationSupplier savedAssociation =
                 organizationSupplierRepository.save(createAssociation());
@@ -182,7 +190,7 @@ class OrganizationSupplierRepositoryTest {
 
         Optional<OrganizationSupplier> result =
                 organizationSupplierRepository
-                        .findByOrganizationIdAndSupplierId(
+                        .findByOrganization_IdAndSupplier_Id(
                                 organizationId,
                                 supplierId
                         );
@@ -193,11 +201,11 @@ class OrganizationSupplierRepositoryTest {
     }
 
     @Test
-    void findByOrganizationIdAndSupplierId_shouldReturnEmpty_whenAssociationDoesNotExist() {
+    void findByOrganization_IdAndSupplier_Id_shouldReturnEmpty_whenAssociationDoesNotExist() {
 
         Optional<OrganizationSupplier> result =
                 organizationSupplierRepository
-                        .findByOrganizationIdAndSupplierId(
+                        .findByOrganization_IdAndSupplier_Id(
                                 organizationId,
                                 999999L
                         );

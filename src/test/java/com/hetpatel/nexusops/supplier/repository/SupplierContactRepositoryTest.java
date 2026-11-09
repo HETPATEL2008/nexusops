@@ -1,5 +1,7 @@
 package com.hetpatel.nexusops.supplier.repository;
 
+import com.hetpatel.nexusops.common.persistence.AuditConfig;
+import com.hetpatel.nexusops.supplier.entity.Supplier;
 import com.hetpatel.nexusops.supplier.entity.SupplierContact;
 import com.hetpatel.nexusops.supplier.entity.SupplierContactStatus;
 import com.hetpatel.nexusops.supplier.entity.SupplierContactType;
@@ -10,11 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
-
 import org.springframework.context.annotation.Import;
 
 import org.springframework.data.domain.Page;
@@ -30,7 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(com.hetpatel.nexusops.common.persistence.AuditConfig.class)
+@Import(AuditConfig.class)
 class SupplierContactRepositoryTest {
 
     @Autowired
@@ -43,6 +42,7 @@ class SupplierContactRepositoryTest {
     private JdbcTemplate jdbcTemplate;
 
     private Long supplierId;
+    private Supplier supplier;
 
     @BeforeEach
     void setUp() {
@@ -73,6 +73,8 @@ class SupplierContactRepositoryTest {
                 Long.class,
                 "TEST-SUP-001"
         );
+
+        supplier = entityManager.find(Supplier.class, supplierId);
     }
 
     private SupplierContact createContact(
@@ -84,7 +86,7 @@ class SupplierContactRepositoryTest {
 
         SupplierContact contact = new SupplierContact();
 
-        contact.setSupplierId(supplierId);
+        contact.setSupplier(supplier);
         contact.setFirstName(firstName);
         contact.setLastName("Patel");
         contact.setEmail(email);
@@ -109,7 +111,7 @@ class SupplierContactRepositoryTest {
                 supplierContactRepository.saveAndFlush(contact);
 
         assertThat(savedContact.getId()).isNotNull();
-        assertThat(savedContact.getSupplierId()).isEqualTo(supplierId);
+        assertThat(savedContact.getSupplier().getId()).isEqualTo(supplierId);
         assertThat(savedContact.getFirstName()).isEqualTo("Het");
         assertThat(savedContact.getEmail()).isEqualTo("het@example.com");
         assertThat(savedContact.getContactType())
@@ -140,7 +142,7 @@ class SupplierContactRepositoryTest {
     }
 
     @Test
-    void findAllBySupplierId_ShouldReturnPaginatedContacts() {
+    void findAllBySupplier_Id_ShouldReturnPaginatedContacts() {
 
         supplierContactRepository.saveAll(List.of(
                 createContact(
@@ -164,7 +166,7 @@ class SupplierContactRepositoryTest {
         ));
 
         Page<SupplierContact> result =
-                supplierContactRepository.findAllBySupplierId(
+                supplierContactRepository.findAllBySupplier_Id(
                         supplierId,
                         PageRequest.of(
                                 0,

@@ -193,7 +193,7 @@ public class SupplierContactController {
                 .body(apiResponse);
     }
 
-    @PatchMapping("e/{id}/deactivat")
+    @PatchMapping("/{id}/deactivate")
     public ResponseEntity<ApiResponse<SupplierContactResponse>> deactivateSupplierContact(
             @PathVariable @Positive Long id) {
 

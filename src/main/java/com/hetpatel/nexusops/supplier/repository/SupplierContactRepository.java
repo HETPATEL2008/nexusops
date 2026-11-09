@@ -20,23 +20,24 @@ import java.util.Optional;
 public interface SupplierContactRepository extends JpaRepository<SupplierContact, Long>,
                                                    JpaSpecificationExecutor<SupplierContact> {
 
-    Page<SupplierContact> findAllBySupplierId(
+    Page<SupplierContact> findAllBySupplier_Id(
             Long supplierId,
             Pageable pageable
     );
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
-    SELECT sc FROM SupplierContact sc
-    WHERE sc.id = :id
-    """)
+        SELECT sc
+        FROM SupplierContact sc
+        WHERE sc.id = :id
+        """)
     Optional<SupplierContact> findByIdForUpdate(@Param("id") Long id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
         SELECT sc
         FROM SupplierContact sc
-        WHERE sc.supplierId = :supplierId
+        WHERE sc.supplier.id = :supplierId
           AND sc.isPrimary = true
           AND sc.status = :status
         """)
